@@ -13,7 +13,7 @@ from
 const firebaseConfig={
 
 apiKey:
-"YOUR_API_KEY",
+"AIzaSyDH08AFOZ3CPWqQKSArwXce7sfCEVfLIUY",
 
 authDomain:
 "veil-6fea0.firebaseapp.com",
