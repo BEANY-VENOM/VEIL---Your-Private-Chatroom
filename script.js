@@ -1,15 +1,12 @@
 // ========= DATA =========
 
 let users=
-
 JSON.parse(
 localStorage.getItem(
 "veil_users"
 )
 )
-
 ||
-
 []
 
 let currentUser=null
@@ -23,18 +20,31 @@ Private:[]
 let currentRoom="Lobby"
 
 let shadows=
-
 JSON.parse(
 localStorage.getItem(
 "veil_shadows"
 )
 )
-
 ||
-
 []
 
 let onlineUsers=[]
+
+// repair old accounts
+
+users.forEach(
+u=>{
+if(!u.key){
+u.key=
+makeCode()
+}
+}
+)
+
+localStorage.setItem(
+"veil_users",
+JSON.stringify(users)
+)
 
 // ========= ELEMENTS =========
 
@@ -54,13 +64,27 @@ document.getElementById("sidebar")
 
 sidebar.innerHTML+=`
 
+<div id="veilKeyBox">
+
+Not logged in
+
+</div>
+
 <hr>
 
 <h3>Rooms</h3>
 
-<button class="room">Lobby</button>
-<button class="room">Afterhours</button>
-<button class="room">Private</button>
+<button class="room">
+Lobby
+</button>
+
+<button class="room">
+Afterhours
+</button>
+
+<button class="room">
+Private
+</button>
 
 <hr>
 
@@ -98,11 +122,9 @@ function saveUsers(){
 
 localStorage.setItem(
 "veil_users",
-
 JSON.stringify(
 users
 )
-
 )
 
 }
@@ -111,11 +133,9 @@ function saveShadows(){
 
 localStorage.setItem(
 "veil_shadows",
-
 JSON.stringify(
 shadows
 )
-
 )
 
 }
@@ -149,7 +169,8 @@ document
 
 onlineUsers
 .map(
-u=>"● "+u
+u=>
+"● "+u
 )
 .join(
 "<br>"
@@ -166,18 +187,15 @@ document.getElementById(
 "shadowList"
 )
 
-if(
-shadows.length===0
-){
-
 list.innerHTML=
+
+shadows.length===0
+
+?
+
 "None"
 
-return
-
-}
-
-list.innerHTML=
+:
 
 shadows
 .map(
@@ -187,6 +205,28 @@ x=>
 .join(
 "<br>"
 )
+
+}
+
+// ========= KEY =========
+
+function renderKey(){
+
+document
+.getElementById(
+"veilKeyBox"
+)
+.innerHTML=
+
+`
+
+<b>Your Veil Key</b>
+
+<br><br>
+
+${currentUser.key}
+
+`
 
 }
 
@@ -211,6 +251,8 @@ currentUser.user
 )
 
 }
+
+renderKey()
 
 renderPresence()
 
@@ -296,7 +338,7 @@ alert(
 
 +
 
-"Your Veil Key:\n"
+"Veil Key:\n"
 
 +
 
@@ -342,6 +384,17 @@ return
 
 }
 
+if(
+!found.key
+){
+
+found.key=
+makeCode()
+
+saveUsers()
+
+}
+
 currentUser=
 found
 
@@ -367,13 +420,25 @@ document
 .trim()
 .toUpperCase()
 
+if(
+code===""
+
+){
+
+alert(
+"Enter a Veil Key"
+)
+
+return
+
+}
+
 const found=
 
 users.find(
-x=>
-
-x.key===code
-
+u=>
+u.key===
+code
 )
 
 if(
@@ -392,6 +457,10 @@ if(
 found.user===
 currentUser.user
 ){
+
+alert(
+"You cannot reveal yourself"
+)
 
 return
 
@@ -413,6 +482,12 @@ saveShadows()
 
 renderShadows()
 
+alert(
+"Connected to "
++
+found.user
+)
+
 }
 
 // ========= CHAT =========
@@ -424,9 +499,7 @@ messages.innerHTML=""
 rooms[
 currentRoom
 ]
-
 .slice(-20)
-
 .forEach(
 m=>{
 
@@ -442,13 +515,11 @@ div.className=
 div.innerText=
 m
 
-messages
-.appendChild(
+messages.appendChild(
 div
 )
 
 }
-
 )
 
 }
@@ -456,9 +527,7 @@ div
 function sendMsg(){
 
 if(
-!messageInput
-.value
-.trim()
+!messageInput.value.trim()
 ){
 
 return
@@ -467,9 +536,7 @@ return
 
 rooms[
 currentRoom
-]
-
-.push(
+].push(
 
 currentUser.user
 
@@ -479,8 +546,7 @@ currentUser.user
 
 +
 
-messageInput
-.value
+messageInput.value
 
 )
 
@@ -506,8 +572,7 @@ sendMsg()
 
 }
 
-}
-)
+})
 
 // ========= ROOMS =========
 
@@ -544,13 +609,11 @@ Object
 rooms
 )
 .forEach(
-
 r=>{
 
 rooms[r]=[]
 
 }
-
 )
 
 onlineUsers=[]
