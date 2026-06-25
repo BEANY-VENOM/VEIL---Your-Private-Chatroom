@@ -411,6 +411,18 @@ document
 .onclick=
 ()=>{
 
+if(
+!currentUser
+){
+
+alert(
+"Login first"
+)
+
+return
+
+}
+
 const code=
 document
 .getElementById(
@@ -422,7 +434,6 @@ document
 
 if(
 code===""
-
 ){
 
 alert(
@@ -437,8 +448,22 @@ const found=
 
 users.find(
 u=>
-u.key===
+
+String(
+u.key
+)
+
+.trim()
+.toUpperCase()
+
+===
+
 code
+
+)
+
+console.log(
+users
 )
 
 if(
@@ -446,7 +471,35 @@ if(
 ){
 
 alert(
-"No signal"
+
+"No signal.\n\n"
+
++
+
+"Known users:\n"
+
++
+
+users
+.map(
+u=>
+
+u.user
+
++
+
+" → "
+
++
+
+u.key
+
+)
+.join(
+"\n"
+
+)
+
 )
 
 return
@@ -473,8 +526,7 @@ found.user
 ){
 
 shadows.push(
-found.user
-)
+found.user)
 
 saveShadows()
 
@@ -483,9 +535,13 @@ saveShadows()
 renderShadows()
 
 alert(
+
 "Connected to "
+
 +
+
 found.user
+
 )
 
 }
