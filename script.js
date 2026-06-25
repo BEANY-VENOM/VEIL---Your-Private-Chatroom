@@ -1,6 +1,16 @@
 // ========= DATA =========
 
-const users=[]
+let users=
+
+JSON.parse(
+localStorage.getItem(
+"veil_users"
+)
+)
+
+||
+
+[]
 
 let currentUser=null
 
@@ -12,7 +22,17 @@ Private:[]
 
 let currentRoom="Lobby"
 
-let shadows=[]
+let shadows=
+
+JSON.parse(
+localStorage.getItem(
+"veil_shadows"
+)
+)
+
+||
+
+[]
 
 let onlineUsers=[]
 
@@ -62,14 +82,43 @@ Reveal
 
 <div>
 Online:
-<span id="onlineCount">0</span>
+<span id="onlineCount">
+0
+</span>
 </div>
 
-<div id="onlineUsers"></div>
+<div id="onlineUsers">
+</div>
 
 `
 
 // ========= HELPERS =========
+
+function saveUsers(){
+
+localStorage.setItem(
+"veil_users",
+
+JSON.stringify(
+users
+)
+
+)
+
+}
+
+function saveShadows(){
+
+localStorage.setItem(
+"veil_shadows",
+
+JSON.stringify(
+shadows
+)
+
+)
+
+}
 
 function makeCode(){
 
@@ -86,19 +135,25 @@ return Math
 function renderPresence(){
 
 document
-.getElementById("onlineCount")
+.getElementById(
+"onlineCount"
+)
 .innerText=
 onlineUsers.length
 
 document
-.getElementById("onlineUsers")
+.getElementById(
+"onlineUsers"
+)
 .innerHTML=
 
 onlineUsers
 .map(
 u=>"● "+u
 )
-.join("<br>")
+.join(
+"<br>"
+)
 
 }
 
@@ -115,7 +170,8 @@ if(
 shadows.length===0
 ){
 
-list.innerHTML="None"
+list.innerHTML=
+"None"
 
 return
 
@@ -125,9 +181,12 @@ list.innerHTML=
 
 shadows
 .map(
-x=>"• "+x
+x=>
+"• "+x
 )
-.join("<br>")
+.join(
+"<br>"
+)
 
 }
 
@@ -201,7 +260,8 @@ return
 
 if(
 users.find(
-x=>x.user===u
+x=>
+x.user===u
 )
 ){
 
@@ -226,10 +286,22 @@ key:code
 
 })
 
+saveUsers()
+
 grecaptcha.reset()
 
 alert(
-"Created\n\nVeil Key:\n"+code
+
+"Created\n\n"
+
++
+
+"Your Veil Key:\n"
+
++
+
+code
+
 )
 
 }
@@ -245,6 +317,7 @@ const p=
 password.value
 
 const found=
+
 users.find(
 
 x=>
@@ -291,12 +364,16 @@ document
 "inviteInput"
 )
 .value
+.trim()
 .toUpperCase()
 
 const found=
+
 users.find(
 x=>
+
 x.key===code
+
 )
 
 if(
@@ -329,6 +406,8 @@ found.user
 shadows.push(
 found.user
 )
+
+saveShadows()
 
 }
 
@@ -369,6 +448,7 @@ div
 )
 
 }
+
 )
 
 }
@@ -399,7 +479,8 @@ currentUser.user
 
 +
 
-messageInput.value
+messageInput
+.value
 
 )
 
@@ -425,7 +506,8 @@ sendMsg()
 
 }
 
-})
+}
+)
 
 // ========= ROOMS =========
 
@@ -472,8 +554,6 @@ rooms[r]=[]
 )
 
 onlineUsers=[]
-
-shadows=[]
 
 }
 )
