@@ -1,14 +1,5 @@
 // ========= DATA =========
 
-let users=
-JSON.parse(
-localStorage.getItem(
-"veil_users"
-)
-)
-||
-[]
-
 let currentUser=null
 
 let rooms={
@@ -23,42 +14,33 @@ let shadows=
 JSON.parse(
 localStorage.getItem(
 "veil_shadows"
-)
-)
+))
 ||
 []
 
 let onlineUsers=[]
 
-// repair old accounts
-
-users.forEach(
-u=>{
-if(!u.key){
-u.key=
-makeCode()
-}
-}
-)
-
-localStorage.setItem(
-"veil_users",
-JSON.stringify(users)
-)
-
 // ========= ELEMENTS =========
 
 const loginPage=
-document.getElementById("loginPage")
+document.getElementById(
+"loginPage"
+)
 
 const app=
-document.getElementById("app")
+document.getElementById(
+"app"
+)
 
 const messages=
-document.getElementById("messages")
+document.getElementById(
+"messages"
+)
 
 const sidebar=
-document.getElementById("sidebar")
+document.getElementById(
+"sidebar"
+)
 
 // ========= SIDEBAR =========
 
@@ -118,25 +100,13 @@ Online:
 
 // ========= HELPERS =========
 
-function saveUsers(){
-
-localStorage.setItem(
-"veil_users",
-JSON.stringify(
-users
-)
-)
-
-}
-
 function saveShadows(){
 
 localStorage.setItem(
 "veil_shadows",
 JSON.stringify(
 shadows
-)
-)
+))
 
 }
 
@@ -149,8 +119,6 @@ return Math
 .toUpperCase()
 
 }
-
-// ========= PRESENCE =========
 
 function renderPresence(){
 
@@ -178,24 +146,19 @@ u=>
 
 }
 
-// ========= SHADOWS =========
-
 function renderShadows(){
 
 const list=
-document.getElementById(
+document
+.getElementById(
 "shadowList"
 )
 
 list.innerHTML=
 
-shadows.length===0
+shadows.length
 
 ?
-
-"None"
-
-:
 
 shadows
 .map(
@@ -206,9 +169,11 @@ x=>
 "<br>"
 )
 
-}
+:
 
-// ========= KEY =========
+"None"
+
+}
 
 function renderKey(){
 
@@ -229,8 +194,6 @@ ${currentUser.key}
 `
 
 }
-
-// ========= ENTER =========
 
 function enter(){
 
@@ -264,7 +227,8 @@ render()
 
 // ========= SIGNUP =========
 
-signup.onclick=()=>{
+signup.onclick=
+async()=>{
 
 const u=
 username.value.trim()
@@ -300,11 +264,29 @@ return
 
 }
 
-if(
-users.find(
-x=>
-x.user===u
+const existing=
+
+await window.getDocs(
+
+window.query(
+
+window.collection(
+window.db,
+"users"
+),
+
+window.where(
+"user",
+"==",
+u
 )
+
+)
+
+)
+
+if(
+!existing.empty
 ){
 
 alert(
@@ -315,34 +297,37 @@ return
 
 }
 
-const code=
+const key=
 makeCode()
 
-users.push({
+await window.addDoc(
+
+window.collection(
+window.db,
+"users"
+),
+
+{
 
 user:u,
 
 pass:p,
 
-key:code
+key:key
 
-})
+}
 
-saveUsers()
+)
 
 grecaptcha.reset()
 
 alert(
 
-"Created\n\n"
+"Created\n\nVeil Key:\n"
 
 +
 
-"Veil Key:\n"
-
-+
-
-code
+key
 
 )
 
@@ -350,7 +335,8 @@ code
 
 // ========= LOGIN =========
 
-login.onclick=()=>{
+login.onclick=
+async()=>{
 
 const u=
 username.value
@@ -358,22 +344,29 @@ username.value
 const p=
 password.value
 
-const found=
+const snap=
 
-users.find(
+await window.getDocs(
 
-x=>
+window.query(
 
-x.user===u
+window.collection(
+window.db,
+"users"
+),
 
-&&
+window.where(
+"user",
+"==",
+u
+)
 
-x.pass===p
+)
 
 )
 
 if(
-!found
+snap.empty
 ){
 
 alert(
@@ -384,14 +377,22 @@ return
 
 }
 
+const found=
+snap.docs[0]
+.data()
+
 if(
-!found.key
+found.pass
+!==
+
+p
 ){
 
-found.key=
-makeCode()
+alert(
+"Denied"
+)
 
-saveUsers()
+return
 
 }
 
@@ -409,35 +410,53 @@ document
 "addShadow"
 )
 .onclick=
-()=>{
+async()=>{
+
+const code=
+inviteInput
+.value
+.trim()
+.toUpperCase()
 
 if(
-!currentUser
+!code
 ){
 
 alert(
-"Login first"
+"Enter Veil Key"
 )
 
 return
 
 }
 
-const code=
-document
-.getElementById(
-"inviteInput"
+const snap=
+
+await window.getDocs(
+
+window.query(
+
+window.collection(
+window.db,
+"users"
+),
+
+window.where(
+"key",
+"==",
+code
 )
-.value
-.trim()
-.toUpperCase()
+
+)
+
+)
 
 if(
-code===""
+snap.empty
 ){
 
 alert(
-"Enter a Veil Key"
+"No signal"
 )
 
 return
@@ -445,75 +464,13 @@ return
 }
 
 const found=
-
-users.find(
-u=>
-
-String(
-u.key
-)
-
-.trim()
-.toUpperCase()
-
-===
-
-code
-
-)
-
-console.log(
-users
-)
-
-if(
-!found
-){
-
-alert(
-
-"No signal.\n\n"
-
-+
-
-"Known users:\n"
-
-+
-
-users
-.map(
-u=>
-
-u.user
-
-+
-
-" → "
-
-+
-
-u.key
-
-)
-.join(
-"\n"
-
-)
-
-)
-
-return
-
-}
+snap.docs[0]
+.data()
 
 if(
 found.user===
 currentUser.user
 ){
-
-alert(
-"You cannot reveal yourself"
-)
 
 return
 
@@ -526,7 +483,8 @@ found.user
 ){
 
 shadows.push(
-found.user)
+found.user
+)
 
 saveShadows()
 
@@ -535,13 +493,9 @@ saveShadows()
 renderShadows()
 
 alert(
-
 "Connected to "
-
 +
-
 found.user
-
 )
 
 }
@@ -555,7 +509,9 @@ messages.innerHTML=""
 rooms[
 currentRoom
 ]
+
 .slice(-20)
+
 .forEach(
 m=>{
 
@@ -571,7 +527,8 @@ div.className=
 div.innerText=
 m
 
-messages.appendChild(
+messages
+.appendChild(
 div
 )
 
@@ -583,7 +540,9 @@ div
 function sendMsg(){
 
 if(
-!messageInput.value.trim()
+!messageInput
+.value
+.trim()
 ){
 
 return
@@ -592,7 +551,9 @@ return
 
 rooms[
 currentRoom
-].push(
+]
+
+.push(
 
 currentUser.user
 
@@ -674,5 +635,4 @@ rooms[r]=[]
 
 onlineUsers=[]
 
-}
-)
+})
