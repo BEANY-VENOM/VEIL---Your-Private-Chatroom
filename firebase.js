@@ -5,7 +5,12 @@ from
 "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js"
 
 import {
-getFirestore
+getFirestore,
+collection,
+addDoc,
+getDocs,
+query,
+where
 }
 from
 "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js"
@@ -43,3 +48,8 @@ app
 )
 
 window.db=db
+window.collection=collection
+window.addDoc=addDoc
+window.getDocs=getDocs
+window.query=query
+window.where=where
